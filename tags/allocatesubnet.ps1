@@ -26,7 +26,9 @@ $app = $apps | Where-Object {$_.name -eq $aspName}
 if ($app -and $app.Tags.subnet)
 {
   # If so, return that subnet and exit
-  return $subnets | Where-Object {$_.name -eq $app.Tags.subnet}
+  $result = $subnets | Where-Object {$_.name -eq $app.Tags.subnet}
+  write-host "##vso[task.setvariable variable=subnetName]$($result.name)"
+  return $result
 }
 
 # Find an available subnet by eliminating all allocated subnets
@@ -42,7 +44,9 @@ foreach ($app in $apps)
 # Allocate a subnet from whatever is left
 if ($subnets.Count -gt 0)
 {
-  return $subnets[0]
+  $result = $subnets[0]
+  write-host "##vso[task.setvariable variable=subnetName]$($result.name)"
+  return $result
 }
 # Or throw an error if there is nothing left
 else 

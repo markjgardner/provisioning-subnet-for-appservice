@@ -34,6 +34,7 @@ $subnet = $subnets | Where-Object {$_.aspName -eq $aspName}
 if ($subnet)
 {
   # If so, return that subnet and exit
+  write-host "##vso[task.setvariable variable=subnetName]$($subnet.RowKey)"
   return $subnet
 }
 
@@ -44,6 +45,7 @@ if ($subnet)
   # If one is available, mark the subnet as in use and return it
   $subnet | Add-Member -NotePropertyName aspName -NotePropertyValue $aspName 
   $update = $subnet | Update-AzTableRow -table $table
+  write-host "##vso[task.setvariable variable=subnetName]$($subnet.RowKey)"
   return $subnet
 }
 # Or throw an error if there are none left
