@@ -12,6 +12,9 @@ param(
     HelpMessage="Storage account containing the subnet assignment table")]
   [string]$storageAccount,
   [Parameter(Mandatory=$true,
+    HelpMessage="Name of the resource group containing the storage account")]
+  [string]$storageResourceGroup,
+  [Parameter(Mandatory=$true,
     HelpMessage="Name of the subnet assignment table ")]
   [string]$tableName,
   [Parameter(HelpMessage="Size of the subnet to allocate (default is 27)")]
@@ -19,11 +22,15 @@ param(
   [int]$subnetSize=27
 )
 
-# Get all subnets (and their assigned ASPs) for the given vnet
-$subnets = az storage entity query --table-name $tableName --account-name $storageAccount --filter "PartitionKey eq '$vnetName' and size eq $subnetSize" | ConvertFrom-Json
+# Setup
+$storage = Get-AzStorageAccount -ResourceGroupName $storageResourceGroup -Name $storageAccount
+$table = (Get-AzStorageTable –Context $storage.Context -Name $tableName).CloudTable
+
+# Get all subnets available for the given vnet
+$subnets = Get-AzTableRow -table $table -customFilter "(PartitionKey eq '$vnetName' and size eq $subnetSize)"
 
 # Check if the app already has a subnet assigned
-$subnet = $subnets.items | Where-Object {$_.aspName -eq $aspName}
+$subnet = $subnets | Where-Object {$_.aspName -eq $aspName}
 if ($subnet)
 {
   # If so, return that subnet and exit
@@ -31,18 +38,12 @@ if ($subnet)
 }
 
 # Otherwise, grab an available subnet
-$subnet = $subnets.items | Where-Object {$_.aspName -eq $null}
+$subnet = $subnets | Where-Object {$_.aspName -eq $null}
 if ($subnet)
 {
-  # If so, mark the subnet as in use and return it
-  $update = @{
-    PartitionKey = $subnet.PartitionKey
-    RowKey = $subnet.RowKey
-    size = $subnet.Size
-    aspName = $aspName
-    etag = $subnet.etag
-  }
-  az storage entity replace --table-name $tableName --account-name $storageAccount --entity $update
+  # If one is available, mark the subnet as in use and return it
+  $subnet | Add-Member -NotePropertyName aspName -NotePropertyValue $aspName 
+  $update = $subnet | Update-AzTableRow -table $table
   return $subnet
 }
 # Or throw an error if there are none left
