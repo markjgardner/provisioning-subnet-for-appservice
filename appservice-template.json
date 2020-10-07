@@ -32,7 +32,7 @@
   "variables": {
     "appServicePlanName": "[concat(parameters('appName'),'asp')]",
     "appServicePlanSku": "P1v2",
-    "subnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), variables('subnetName'))]"
+    "subnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetName'))]"
   },
   "resources": [
     {
