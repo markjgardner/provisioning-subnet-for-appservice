@@ -37,8 +37,9 @@ if ($subnet)
 {
   # If so, return that subnet and exit
   Write-Information "ASP $aspName is already integrated with subnet $($subnet.RowKey)"
-  write-host "##vso[task.setvariable variable=subnetName]$($subnet.RowKey)"
-  return $subnet
+  Write-Host "##vso[task.setvariable variable=subnetName]$($subnet.RowKey)"
+  Write-Information $subnet
+  exit 0
 }
 
 # Otherwise, grab an available subnet
@@ -48,8 +49,9 @@ if ($subnet)
   # If one is available, mark the subnet as in use and return it
   $subnet | Add-Member -NotePropertyName aspName -NotePropertyValue $aspName 
   $update = $subnet | Update-AzTableRow -table $table
-  write-host "##vso[task.setvariable variable=subnetName]$($subnet.RowKey)"
-  return $subnet
+  Write-Host "##vso[task.setvariable variable=subnetName]$($subnet.RowKey)"
+  Write-Information $subnet
+  exit 0
 }
 # Or throw an error if there are none left
 else 

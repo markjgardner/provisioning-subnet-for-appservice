@@ -29,8 +29,9 @@ if ($app -and $app.Tags.subnet)
   # If so, return that subnet and exitx
   $result = $subnets | Where-Object {$_.name -eq $app.Tags.subnet}
   Write-Information "ASP $aspName is already integrated with subnet $($result.name)"
-  write-host "##vso[task.setvariable variable=subnetName]$($result.name)"
-  return $result
+  Write-Host "##vso[task.setvariable variable=subnetName]$($result.name)"
+  Write-Information $result
+  exit 0
 }
 
 # Find an available subnet by eliminating all allocated subnets
@@ -48,7 +49,8 @@ if ($subnets.Count -gt 0)
 {
   $result = $subnets[0]
   write-host "##vso[task.setvariable variable=subnetName]$($result.name)"
-  return $result
+  Write-Information $result
+  exit 0
 }
 # Or throw an error if there is nothing left
 else 
