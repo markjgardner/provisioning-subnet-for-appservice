@@ -21,7 +21,7 @@ param(
   [ValidateRange(1,32)]
   [int]$subnetSize=27
 )
-Install-Module AzTable -Scope CurrentUser -Force
+Install-Module AzTable -Force -AllowClobber
 
 # Setup
 $storage = Get-AzStorageAccount -ResourceGroupName $storageResourceGroup -Name $storageAccount
@@ -29,18 +29,20 @@ $table = (Get-AzStorageTable –Context $storage.Context -Name $tableName).Cloud
 
 # Get all subnets available for the given vnet
 $subnets = Get-AzTableRow -table $table -customFilter "(PartitionKey eq '$vnetName' and size eq $subnetSize)"
+Write-Information "Found $($subnets.Count) subnets in $vnetName"
 
 # Check if the app already has a subnet assigned
 $subnet = $subnets | Where-Object {$_.aspName -eq $aspName}
 if ($subnet)
 {
   # If so, return that subnet and exit
+  Write-Information "ASP $aspName is already integrated with subnet $($subnet.RowKey)"
   write-host "##vso[task.setvariable variable=subnetName]$($subnet.RowKey)"
   return $subnet
 }
 
 # Otherwise, grab an available subnet
-$subnet = $subnets | Where-Object {$_.aspName -eq $null}
+$subnet = $subnets | Where-Object {$_.aspName -eq $null} | Select-Object -First 1
 if ($subnet)
 {
   # If one is available, mark the subnet as in use and return it

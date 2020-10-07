@@ -14,9 +14,11 @@ param(
 )
 # Get all subnets available in the vnet
 [System.Collections.ArrayList]$subnets = az network vnet subnet list -g $vnetResourceGroup --vnet-name $vnetName --query "[?addressPrefix | ends_with(@,'$subnetSize')]" | ConvertFrom-Json
+Write-Information "Found $($subnets.Count) subnets in $vnetName"
 
 # Get all app service plans which are already associated with this vnet
-$apps = az appservice plan list --query "[?tags.vnet=='$vnetName']" | ConvertFrom-Json
+[System.Collections.ArrayList]$apps = az appservice plan list --query "[?tags.vnet=='$vnetName']" | ConvertFrom-Json
+Write-Information "Found $($apps.Count) app service plans integrated with $vnetName"
 
 # Is this a new app?
 $app = $apps | Where-Object {$_.name -eq $aspName}
@@ -24,8 +26,9 @@ $app = $apps | Where-Object {$_.name -eq $aspName}
 # If not new, does the app already have an assigned subnet?
 if ($app -and $app.Tags.subnet)
 {
-  # If so, return that subnet and exit
+  # If so, return that subnet and exitx
   $result = $subnets | Where-Object {$_.name -eq $app.Tags.subnet}
+  Write-Information "ASP $aspName is already integrated with subnet $($result.name)"
   write-host "##vso[task.setvariable variable=subnetName]$($result.name)"
   return $result
 }
