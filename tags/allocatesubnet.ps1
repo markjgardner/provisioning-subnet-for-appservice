@@ -12,7 +12,6 @@ param(
   [ValidateRange(1,32)]
   [int]$subnetSize=27
 )
-
 # Get all subnets available in the vnet
 [System.Collections.ArrayList]$subnets = az network vnet subnet list -g $vnetResourceGroup --vnet-name $vnetName --query "[?addressPrefix | ends_with(@,'$subnetSize')]" | ConvertFrom-Json
 

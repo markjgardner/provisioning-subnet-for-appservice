@@ -21,6 +21,7 @@ param(
   [ValidateRange(1,32)]
   [int]$subnetSize=27
 )
+Install-Module AzTable -Scope CurrentUser -Force
 
 # Setup
 $storage = Get-AzStorageAccount -ResourceGroupName $storageResourceGroup -Name $storageAccount
