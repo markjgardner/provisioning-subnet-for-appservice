@@ -4,6 +4,7 @@ Ideally, keeping track of subnet assignments is a job best solved by a configura
 
 ## Prerequisites
 * existing vnet with preallocated subnets (/27's is this example)
+  * subnets should already be delegated for app service integration
 * pipeline service principal has contributor access on vnet
 * pipeline service principal has reader on all app services integrated to the target vnet
 * target resource group to contain deployed resources

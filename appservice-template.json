@@ -54,6 +54,10 @@
       "dependsOn": [
         "[resourceId('Microsoft.Web/serverFarms', variables('appServicePlanName'))]"
       ],
+      "tags": {
+        "vnet": "[parameters('vnetName')]",
+        "subnet": "[parameters('subnetName')]"
+      },
       "properties": {
         "serverFarmId": "[resourceId('Microsoft.Web/serverFarms', variables('appServicePlanName'))]"
       },
