@@ -17,7 +17,7 @@ param(
 Write-Information "Found $($subnets.Count) subnets in $vnetName"
 
 # Get all app service plans which are already associated with this vnet
-[System.Collections.ArrayList]$apps = az appservice plan list --query "[?tags.vnet=='$vnetName']" | ConvertFrom-Json
+$apps = az appservice plan list --query "[?tags.vnet=='$vnetName']" | ConvertFrom-Json
 Write-Information "Found $($apps.Count) app service plans integrated with $vnetName"
 
 # Is this a new app?

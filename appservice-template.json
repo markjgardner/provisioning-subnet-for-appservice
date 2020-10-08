@@ -43,7 +43,11 @@
       "sku": {
         "name": "[variables('appServicePlanSku')]"
       },
-      "kind": "app"
+      "kind": "app",
+      "tags": {
+        "vnet": "[parameters('vnetName')]",
+        "subnet": "[parameters('subnetName')]"
+      }
     },
     {
       "type": "Microsoft.Web/sites",
